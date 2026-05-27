@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>JW Bethel Tours — Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --navy-950:#071332;--navy-925:#081430;--navy-900:#0d204d;
+  --teal-500:#14b8a6;--teal-400:#4fd8cc;--teal-300:#9cefe7;
+  --cyan-400:#56b8ff;--ink-900:#0f1f3c;--ink-800:#1b325f;
+  --slate-50:#f5f8fc;--slate-100:#edf3f9;--slate-200:#dce6f1;
+  --slate-300:#c7d5e5;--slate-500:#6f84a3;--slate-700:#375071;
+  --white:#fff;--success:#2fbf85;--warning:#d8a855;--danger:#de6a6a;
+  --shadow-lg:0 32px 64px rgba(7,19,50,.16);
+  --shadow-md:0 18px 40px rgba(7,19,50,.12);
+  --shadow-sm:0 10px 22px rgba(15,31,60,.08);
+  --radius-xl:24px;--radius-lg:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:Inter,-apple-system,sans-serif;color:var(--ink-900);background:var(--slate-50);min-height:100%}
+button{cursor:pointer;font:inherit}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+/* ─── NAV ─── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(7,19,50,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:1.05rem}
+.nav-logo img{width:36px;height:36px;object-fit:contain}
+.nav-links{display:flex;align-items:center;gap:20px}
+.nav-links a{color:rgba(229,238,255,.84);font-size:.95rem}
+.nav-book{padding:10px 20px;border-radius:999px;background:var(--teal-500);color:#fff!important;font-weight:600}
+
+/* ─── TABS ─── */
+.page-tabs{display:flex;justify-content:center;gap:8px;padding:16px 24px;background:#fff;border-bottom:1px solid var(--slate-200)}
+.tab-btn{padding:10px 22px;border-radius:12px;border:1px solid var(--slate-200);background:#fff;font-weight:600;color:var(--slate-500);font-size:.9rem;transition:all 140ms}
+.tab-btn.active{background:var(--navy-900);color:#fff;border-color:var(--navy-900);box-shadow:var(--shadow-sm)}
+
+.page{display:none}.page.active{display:block}
+
+/* ─── HERO ─── */
+.hero{position:relative;min-height:92vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#06112b 0%,#071332 100%);overflow:hidden}
+.hero-glow{position:absolute;inset:auto auto 15% 50%;width:600px;height:600px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(20,184,166,.16),transparent 65%);filter:blur(80px);pointer-events:none}
+.hero-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:80px 24px;max-width:780px;gap:24px;color:#fff}
+.hero-logo{width:min(260px,50vw);filter:drop-shadow(0 24px 48px rgba(0,0,0,.4))}
+.eyebrow{color:var(--teal-400);font-size:.78rem;letter-spacing:.22em;font-weight:700}
+.hero h1{font-size:clamp(2.4rem,5.5vw,4rem);font-weight:800;letter-spacing:-.05em;line-height:1.1}
+.hero h1 span{color:var(--teal-400)}
+.hero-desc{font-size:1.1rem;color:rgba(220,234,255,.82);line-height:1.7;max-width:560px}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.cta-primary{padding:16px 32px;border-radius:999px;background:var(--teal-500);color:#fff;font-weight:700;font-size:1rem;box-shadow:0 12px 28px rgba(20,184,166,.3);transition:transform 140ms,opacity 140ms;border:none}
+.cta-primary:hover{transform:translateY(-2px);opacity:.9}
+.cta-ghost{padding:16px 32px;border-radius:999px;border:1px solid rgba(255,255,255,.2);color:#fff;font-weight:600;background:rgba(255,255,255,.06);transition:background 140ms;cursor:pointer}
+.cta-ghost:hover{background:rgba(255,255,255,.1)}
+.hero-stats{display:flex;align-items:center;gap:24px}
+.stat{display:grid;gap:2px;text-align:center}
+.stat strong{font-size:1.5rem;font-weight:800}
+.stat span{font-size:.8rem;color:rgba(200,215,240,.7);letter-spacing:.08em}
+.stat-div{width:1px;height:40px;background:rgba(255,255,255,.14)}
+
+/* ─── TOURS SECTION ─── */
+.section{padding:90px 0;background:#fff}
+.section.alt{background:var(--slate-50)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.sec-header{text-align:center;margin-bottom:52px}
+.sec-eyebrow{display:inline-block;color:var(--teal-500);font-size:.76rem;letter-spacing:.22em;font-weight:700;margin-bottom:12px}
+.sec-header h2{font-size:clamp(1.8rem,3vw,2.6rem);letter-spacing:-.04em;margin-bottom:14px}
+.sec-lead{color:var(--slate-500);font-size:1.05rem;line-height:1.7;max-width:540px;margin:0 auto}
+.tour-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.tour-card{border-radius:26px;overflow:hidden;border:1px solid var(--slate-200);box-shadow:var(--shadow-md);background:#fff;transition:transform 200ms,box-shadow 200ms}
+.tour-card:hover{transform:translateY(-4px);box-shadow:0 32px 64px rgba(7,19,50,.14)}
+.tour-img{height:200px;position:relative;display:flex;align-items:flex-end;padding:16px}
+.tour-price{padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);color:#fff;font-size:1.1rem;font-weight:700}
+.tour-price small{font-size:.75rem;font-weight:400;opacity:.8}
+.tour-body{padding:22px;display:grid;gap:14px}
+.tour-chips{display:flex;gap:8px}
+.chip{padding:6px 12px;border-radius:999px;background:var(--slate-100);color:var(--slate-700);font-size:.82rem;font-weight:600}
+.tour-body h3{font-size:1.2rem;letter-spacing:-.03em}
+.tour-tagline{color:var(--slate-500);font-size:.92rem;line-height:1.6}
+.highlights{list-style:none;display:grid;gap:8px}
+.highlights li{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--slate-700)}
+.highlights li svg{width:14px;height:14px;color:var(--teal-500);flex-shrink:0}
+.book-btn{display:block;padding:13px 18px;border-radius:16px;background:linear-gradient(180deg,#1f8dc1 0%,#0f6b91 100%);color:#fff;font-weight:600;text-align:center;border:none;font-size:.95rem;transition:opacity 140ms;cursor:pointer}
+.book-btn:hover{opacity:.88}
+
+/* ─── HOW IT WORKS ─── */
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px}
+.how-card{padding:32px 28px;border-radius:26px;background:#fff;border:1px solid var(--slate-200);box-shadow:var(--shadow-sm);display:grid;gap:12px}
+.step-num{font-size:.76rem;font-weight:800;letter-spacing:.18em;color:var(--teal-500)}
+.how-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:18px;background:rgba(20,184,166,.08);color:var(--teal-500)}
+.how-icon svg{width:26px;height:26px}
+.how-card h4{font-size:1.15rem}
+.how-card p{color:var(--slate-500);font-size:.93rem;line-height:1.65}
+
+/* ─── TRACKING PREVIEW CARD ─── */
+.track-prev{padding:28px;border-radius:26px;background:linear-gradient(180deg,rgba(7,19,50,.94) 0%,rgba(9,22,54,.92) 100%);color:#fff;border:1px solid rgba(163,192,235,.14);box-shadow:0 30px 70px rgba(5,12,31,.22);display:grid;gap:14px}
+.track-prev-hdr{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.05rem}
+.track-prev > p{color:rgba(220,234,255,.75);line-height:1.6;font-size:.94rem}
+.pulse-wrap{display:flex;align-items:center}
+.pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--teal-400);box-shadow:0 0 0 0 rgba(79,216,204,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,216,204,.6)}70%{box-shadow:0 0 0 10px rgba(79,216,204,0)}100%{box-shadow:0 0 0 0 rgba(79,216,204,0)}}
+.track-badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;font-size:.8rem;font-weight:700}
+.track-badge.enroute{background:rgba(79,216,204,.18);color:var(--teal-300);border:1px solid rgba(79,216,204,.3)}
+.track-map-stub{position:relative;height:90px;border-radius:16px;background:linear-gradient(135deg,#0d2b28 0%,#1a4a45 100%);overflow:hidden;display:flex;align-items:center;justify-content:space-between;padding:0 32px}
+.map-road{position:absolute;inset:50% 0 auto;height:2px;background:rgba(79,216,204,.3);transform:translateY(-50%)}
+.map-pin{position:relative;z-index:1;width:36px;height:36px;border-radius:50%;display:grid;place-items:center}
+.driver-pin{background:var(--teal-500);color:#fff}
+.driver-pin svg{width:18px;height:18px}
+.you-pin{background:#fff;color:var(--navy-900);border:2px solid var(--teal-500);font-size:.62rem;font-weight:800}
+
+/* ─── FOOTER ─── */
+.footer{background:var(--navy-925);color:rgba(220,234,255,.8);padding:60px 0 0}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:48px;padding-bottom:48px}
+.footer-brand{display:grid;gap:14px}
+.footer-logo-img{width:80px;height:80px;object-fit:contain}
+.footer-brand p{font-size:.9rem;line-height:1.65;color:rgba(200,214,238,.68)}
+.footer-col{display:grid;gap:12px;align-content:start}
+.footer-col h5{color:rgba(220,234,255,.5);font-size:.76rem;letter-spacing:.16em;text-transform:uppercase}
+.footer-col a{color:rgba(200,214,238,.8);font-size:.92rem}
+.footer-col a:hover{color:var(--teal-300)}
+.footer-bar{border-top:1px solid rgba(255,255,255,.06);padding:18px 24px;display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto}
+.footer-bar p{font-size:.82rem;color:rgba(180,194,220,.5)}
+.footer-bar a{font-size:.8rem;color:rgba(180,194,220,.4)}
+
+/* ─── BOOKING PAGE ─── */
+#booking-page{background:linear-gradient(180deg,#f8fbff 0%,#eef4fa 100%);min-height:100vh;padding:36px 24px}
+.booking-wrap{max-width:680px;margin:0 auto;display:grid;gap:20px}
+.steps-bar{display:flex;justify-content:center;gap:0;padding:0 0 32px;overflow-x:auto}
+.step-item{display:flex;align-items:center;gap:10px;padding:0 18px;color:var(--slate-500);font-size:.88rem;white-space:nowrap}
+.step-item+.step-item{border-left:1px solid var(--slate-200)}
+.step-item.active{color:var(--ink-900);font-weight:600}
+.step-item.done{color:var(--teal-500)}
+.step-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--slate-100);color:var(--slate-500);font-size:.82rem;font-weight:700;flex-shrink:0}
+.step-item.active .step-dot{background:var(--navy-900);color:#fff}
+.step-item.done .step-dot{background:var(--teal-500);color:#fff}
+.step-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:800;letter-spacing:-.04em}
+.step-sub{color:var(--slate-500);line-height:1.6}
+.tour-chip-row{display:inline-flex;align-items:center;gap:12px;padding:10px 16px;border-radius:999px;background:rgba(20,184,166,.1);color:var(--teal-500);font-weight:600;font-size:.9rem;width:fit-content}
+
+/* ─── CALENDAR ─── */
+.cal-card{background:#fff;border-radius:26px;border:1px solid var(--slate-200);box-shadow:var(--shadow-sm);padding:24px}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.cal-month{font-size:1.1rem;font-weight:700;letter-spacing:-.02em}
+.cal-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--slate-200);background:#fff;color:var(--ink-900);display:grid;place-items:center;transition:background 140ms}
+.cal-btn:hover:not(:disabled){background:var(--slate-100)}
+.cal-btn:disabled{opacity:.3}
+.cal-btn svg{width:18px;height:18px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-dow{text-align:center;font-size:.76rem;font-weight:700;color:var(--slate-500);letter-spacing:.06em;padding-bottom:8px}
+.cal-day{aspect-ratio:1;border-radius:50%;border:none;background:transparent;font-size:.9rem;position:relative;display:grid;place-items:center;transition:background 100ms,color 100ms;font:inherit}
+.cal-day.avail{color:var(--ink-900);font-weight:600;cursor:pointer}
+.cal-day.avail:hover{background:rgba(20,184,166,.12)}
+.cal-day.selected{background:var(--teal-500)!important;color:#fff!important}
+.cal-day.today{color:var(--teal-500);font-weight:700}
+.cal-day.unavail,.cal-day.past{color:var(--slate-200)}
+.avail-dot{position:absolute;bottom:5px;width:5px;height:5px;border-radius:50%;background:var(--teal-500)}
+.cal-legend{display:flex;gap:20px;font-size:.82rem;color:var(--slate-500);margin-top:14px}
+.leg-item{display:flex;align-items:center;gap:6px}
+.leg-dot{width:10px;height:10px;border-radius:50%}
+.leg-dot.avail{background:var(--teal-500)}
+.leg-dot.unavail{background:var(--slate-200)}
+.leg-dot.selected{background:var(--teal-500);box-shadow:0 0 0 3px rgba(20,184,166,.2)}
+
+/* ─── TIME SLOTS ─── */
+.time-grid{display:grid;gap:12px}
+.time-card{display:flex;align-items:center;gap:16px;padding:18px 20px;border:1px solid var(--slate-200);border-radius:18px;background:#fff;box-shadow:var(--shadow-sm);cursor:pointer;transition:border-color 140ms,box-shadow 140ms}
+.time-card:hover{border-color:var(--teal-500);box-shadow:0 8px 24px rgba(20,184,166,.12)}
+.time-card.selected{border-color:var(--teal-500);background:rgba(20,184,166,.06)}
+.time-label{font-size:1.2rem;font-weight:700;letter-spacing:-.02em;flex:1}
+.spots{padding:5px 10px;border-radius:999px;background:rgba(47,191,133,.12);color:#1a7a4f;font-size:.8rem;font-weight:600}
+.spots.low{background:rgba(216,168,85,.18);color:#9a6a21}
+.time-arrow{width:18px;height:18px;color:var(--slate-300)}
+
+/* ─── FORM ─── */
+.form-grid{display:grid;gap:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-label{display:grid;gap:6px}
+.form-label > span{color:var(--slate-500);font-size:.85rem;font-weight:600}
+.form-label input,.form-label select,.form-label textarea{width:100%;min-height:48px;padding:12px 14px;border-radius:16px;border:1px solid rgba(193,208,225,.86);background:rgba(255,255,255,.96);color:var(--ink-900);font:inherit}
+.form-label textarea{min-height:100px;resize:vertical}
+.submit-btn{padding:16px;border-radius:16px;background:linear-gradient(180deg,#1f8dc1 0%,#0f6b91 100%);color:#fff;font-weight:700;font-size:1rem;border:none;width:100%;margin-top:4px;cursor:pointer;transition:opacity 140ms}
+.submit-btn:hover{opacity:.9}
+
+/* ─── CONFIRMATION ─── */
+.confirm-panel{display:grid;gap:20px;align-items:center;text-align:center}
+.confirm-check{width:72px;height:72px;border-radius:50%;background:linear-gradient(180deg,#1fb87a 0%,#14b8a6 100%);color:#fff;display:grid;place-items:center;box-shadow:0 16px 32px rgba(20,184,166,.3);margin:0 auto}
+.confirm-check svg{width:36px;height:36px}
+.confirm-card{border-radius:22px;border:1px solid var(--slate-200);background:#fff;overflow:hidden;box-shadow:var(--shadow-sm);text-align:left}
+.confirm-row{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(229,237,245,.9);font-size:.93rem}
+.confirm-row:last-child{border-bottom:0}
+.confirm-row span{color:var(--slate-500)}
+.booking-ref{font-family:monospace;color:var(--teal-500)}
+.track-link-card{padding:24px;border-radius:22px;background:linear-gradient(180deg,rgba(7,19,50,.9),rgba(9,22,54,.88));color:#fff;border:1px solid rgba(163,192,235,.14);text-align:left;display:grid;gap:12px}
+.track-link-hdr{display:flex;align-items:center;gap:10px;font-weight:700}
+.track-link-card > p{color:rgba(220,234,255,.75);font-size:.9rem;line-height:1.6}
+.track-url{padding:12px 16px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:.82rem;color:var(--teal-300);word-break:break-all;font-family:monospace}
+.track-actions{display:flex;gap:10px}
+.btn-outline{padding:11px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-weight:600;cursor:pointer}
+.btn-solid{padding:11px 16px;border-radius:16px;background:var(--teal-500);color:#fff;font-weight:600;border:none;cursor:pointer}
+
+/* ─── TRACKING PAGE ─── */
+#tracking-page{display:block}
+#tracking-map-wrap{height:calc(100vh - 114px);display:grid;grid-template-rows:1fr auto}
+#live-map{height:100% !important;min-height:340px}
+.map-container{width:100%;height:100%;min-height:340px}
+.tracking-panel{background:#fff;border-top:1px solid var(--slate-200);box-shadow:0 -12px 36px rgba(7,19,50,.1);overflow-y:auto;max-height:45vh}
+.track-inner{padding:20px;display:grid;gap:14px}
+.track-info-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.track-guide-label{font-size:.76rem;color:var(--slate-500);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.track-guide-name{font-size:1.3rem;font-weight:700;letter-spacing:-.04em}
+.eta-badge{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:rgba(79,216,204,.12);border:1px solid rgba(79,216,204,.25);color:var(--teal-500);font-weight:700;font-size:.88rem;white-space:nowrap}
+.track-details{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.track-detail{display:grid;gap:4px}
+.track-detail > span{font-size:.76rem;color:var(--slate-500);text-transform:uppercase;letter-spacing:.1em}
+.track-detail > strong{font-size:.96rem}
+.track-status-desc{color:var(--slate-500);font-size:.88rem;line-height:1.6}
+.info-note{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:rgba(20,184,166,.08);color:var(--ink-800);font-size:.86rem;line-height:1.5}
+.info-note svg{width:17px;height:17px;flex-shrink:0}
+
+/* ─── DRIVER PAGE ─── */
+#driver-page{min-height:calc(100vh - 114px);background:var(--slate-50);padding:20px}
+.driver-body{max-width:520px;margin:0 auto;display:grid;gap:16px}
+.drv-card{padding:20px;border-radius:22px;background:#fff;border:1px solid var(--slate-200);box-shadow:var(--shadow-sm)}
+.drv-label{font-size:.72rem;letter-spacing:.18em;color:var(--slate-500);font-weight:700;text-transform:uppercase;margin-bottom:8px}
+.drv-guest{font-size:1.5rem;font-weight:800;letter-spacing:-.04em;margin-bottom:10px}
+.drv-meta{display:flex;align-items:center;gap:14px;color:var(--slate-700);font-size:.9rem}
+.drv-call{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:rgba(20,184,166,.1);color:var(--teal-500);font-size:.85rem;font-weight:600;border:none;cursor:pointer}
+.drv-call svg{width:14px;height:14px}
+.drv-progress{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.drv-step{display:flex;align-items:center;gap:12px}
+.drv-step-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--slate-200);background:#fff;display:grid;place-items:center;font-size:.78rem;font-weight:700;color:var(--slate-400);flex-shrink:0}
+.drv-step.done .drv-step-dot{background:var(--teal-500);border-color:var(--teal-500);color:#fff}
+.drv-step.current .drv-step-dot{background:var(--navy-900);border-color:var(--navy-900);color:#fff}
+.drv-step > span{font-size:.9rem;color:var(--slate-500)}
+.drv-step.current > span{color:var(--ink-900);font-weight:600}
+.drv-step.done > span{color:var(--teal-500)}
+.drv-step-dot svg{width:12px;height:12px}
+.advance-btn{padding:15px;border-radius:16px;background:linear-gradient(180deg,#1f8dc1 0%,#0f6b91 100%);color:#fff;font-weight:700;font-size:1rem;border:none;width:100%;cursor:pointer;transition:opacity 140ms}
+.advance-btn:hover{opacity:.9}
+.loc-card{border:1px solid var(--slate-200)}
+.loc-card.sharing{border-color:rgba(79,216,204,.4);background:rgba(20,184,166,.03)}
+.loc-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.loc-status{font-size:.9rem;display:flex;align-items:center;gap:6px;color:var(--slate-700);margin-top:4px}
+.start-btn{padding:12px 20px;border-radius:999px;background:var(--teal-500);color:#fff;font-weight:700;font-size:.9rem;border:none;white-space:nowrap;cursor:pointer}
+.stop-btn{padding:12px 20px;border-radius:999px;background:rgba(222,106,106,.15);color:var(--danger);font-weight:700;font-size:.9rem;border:1px solid rgba(222,106,106,.25);cursor:pointer}
+.loc-detail{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.loc-row{display:grid;gap:2px}
+.loc-row > span{font-size:.72rem;color:var(--slate-500);letter-spacing:.08em;text-transform:uppercase}
+.loc-row code{font-size:.86rem;background:var(--slate-100);padding:4px 8px;border-radius:8px}
+.loc-hint{margin:10px 0 0;color:var(--slate-500);font-size:.84rem;line-height:1.6}
+.back-step{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--slate-500);font-size:.88rem;cursor:pointer;padding:0;margin-bottom:-4px}
+.back-step svg{width:16px;height:16px}
+
+/* ─── PULSE DOT INLINE ─── */
+.pulse-dot.muted{background:var(--slate-300);box-shadow:none;animation:none}
+.pulse-dot.inline{display:inline-block;margin-right:6px;vertical-align:middle}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){.tour-grid,.how-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.tour-grid,.how-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.track-details{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <img src="/assets/logo.png" alt="JW Bethel Tours" onerror="this.style.display='none'"/>
+      <span>JW Bethel Tours</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" onclick="showPage('landing')">Home</a>
+      <a href="#" onclick="showPage('booking')">Book Now</a>
+      <a href="#" onclick="showPage('tracking')" class="nav-book">Track Demo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE TABS -->
+<div class="page-tabs">
+  <button class="tab-btn active" onclick="showPage('landing')" id="tab-landing">🏔 Landing Page</button>
+  <button class="tab-btn" onclick="showPage('booking')" id="tab-booking">📅 Booking Calendar</button>
+  <button class="tab-btn" onclick="showPage('tracking')" id="tab-tracking">📍 Live Tracking</button>
+  <button class="tab-btn" onclick="showPage('driver')" id="tab-driver">🚐 Driver App</button>
+</div>
+
+<!-- ═══════════════════════════════ LANDING PAGE ═══════════════════════════════ -->
+<div id="landing-page" class="page active">
+
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <img src="/assets/logo.png" alt="JW Bethel Tours" class="hero-logo" onerror="this.style.display='none'"/>
+      <p class="eyebrow">GUIDED TOURS · JW BETHEL</p>
+      <h1>Discover the Stories<br/><span>Hidden in Plain Sight</span></h1>
+      <p class="hero-desc">Mountain landscapes, historic streets, and sunset valleys — guided by locals who know every story worth telling.</p>
+      <div class="cta-row">
+        <button class="cta-primary" onclick="showPage('booking')">Reserve Your Spot</button>
+        <button class="cta-ghost">Explore Tours</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><strong>3</strong><span>Unique Tours</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><strong>5★</strong><span>Guest Rating</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><strong>Live</strong><span>Guide Tracking</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-header">
+        <p class="sec-eyebrow">FEATURED EXPERIENCES</p>
+        <h2>Tours That Tell a Story</h2>
+        <p class="sec-lead">Every route is hand-crafted to reveal something you wouldn't find on your own.</p>
+      </div>
+      <div class="tour-grid">
+        <div class="tour-card">
+          <div class="tour-img" style="background:linear-gradient(135deg,#0a2a27 0%,#14b8a6 100%)">
+            <span class="tour-price">$85<small> /person</small></span>
+          </div>
+          <div class="tour-body">
+            <div class="tour-chips"><span class="chip">4 hrs</span><span class="chip">Up to 12</span></div>
+            <h3>Blue Ridge Mountain Tour</h3>
+            <p class="tour-tagline">Wind through scenic overlooks, hidden waterfalls, and charming mountain communities.</p>
+            <ul class="highlights">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Scenic mountain overlooks</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Hidden waterfall stops</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Local history &amp; stories</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Complimentary refreshments</li>
+            </ul>
+            <button class="book-btn" onclick="showPage('booking')">Reserve a Spot</button>
+          </div>
+        </div>
+        <div class="tour-card">
+          <div class="tour-img" style="background:linear-gradient(135deg,#08183e 0%,#2459af 100%)">
+            <span class="tour-price">$45<small> /person</small></span>
+          </div>
+          <div class="tour-body">
+            <div class="tour-chips"><span class="chip">2 hrs</span><span class="chip">Up to 20</span></div>
+            <h3>Historic Downtown Walking Tour</h3>
+            <p class="tour-tagline">Discover centuries of architecture and the hidden gems that make this town special.</p>
+            <ul class="highlights">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Historic architecture</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Local legends &amp; stories</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Hidden courtyards</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Photo opportunities</li>
+            </ul>
+            <button class="book-btn" onclick="showPage('booking')">Reserve a Spot</button>
+          </div>
+        </div>
+        <div class="tour-card">
+          <div class="tour-img" style="background:linear-gradient(135deg,#291707 0%,#c97d22 100%)">
+            <span class="tour-price">$65<small> /person</small></span>
+          </div>
+          <div class="tour-body">
+            <div class="tour-chips"><span class="chip">3 hrs</span><span class="chip">Up to 8</span></div>
+            <h3>Sunset Valley Scenic Drive</h3>
+            <p class="tour-tagline">Chase the golden hour through Valley Road as the sun dips below the ridgeline.</p>
+            <ul class="highlights">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Golden hour photography</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Wildlife spotting</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Valley overlooks</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Small group experience</li>
+            </ul>
+            <button class="book-btn" onclick="showPage('booking')">Reserve a Spot</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="sec-header">
+        <p class="sec-eyebrow">THE EXPERIENCE</p>
+        <h2>Book to Arrival in Minutes</h2>
+        <p class="sec-lead">Live technology makes your experience seamless — from booking to the moment your guide arrives.</p>
+      </div>
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="step-num">01</div>
+          <div class="how-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <h4>Book Online</h4>
+          <p>Pick your tour, choose a date and time, and secure your spot in minutes — right from your phone.</p>
+        </div>
+        <div class="how-card">
+          <div class="step-num">02</div>
+          <div class="how-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.07 9.81 19.79 19.79 0 011 1.18 2 2 0 013 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <h4>Get Confirmation</h4>
+          <p>Receive instant confirmation with all your details and a live tracking link ready for tour day.</p>
+        </div>
+        <div class="how-card">
+          <div class="step-num">03</div>
+          <div class="how-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <h4>Track Your Guide Live</h4>
+          <p>On tour day, open your link to see your guide's real-time location — like Uber, but for adventures.</p>
+        </div>
+      </div>
+      <div class="track-prev">
+        <div class="track-prev-hdr">
+          <div class="pulse-wrap"><div class="pulse-dot"></div></div>
+          <strong>Live Guide Tracking</strong>
+          <span class="track-badge enroute">En Route · 4 min</span>
+        </div>
+        <p>Your guide shares their location in real time. Watch them navigate to your pickup point — no guessing, no waiting in the wrong spot.</p>
+        <div class="track-map-stub">
+          <div class="map-road"></div>
+          <div class="map-pin driver-pin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
+          <div class="map-pin you-pin">YOU</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="/assets/logo.png" class="footer-logo-img" alt="JW Bethel Tours" onerror="this.style.display='none'"/>
+          <p>Guided tours that reveal the real story of this land.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Explore</h5>
+          <a href="#">All Tours</a>
+          <a href="#" onclick="showPage('booking')">Book Now</a>
+        </div>
+        <div class="footer-col">
+          <h5>Contact</h5>
+          <a href="mailto:info@jwbethel.tours">info@jwbethel.tours</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <p>&copy; 2026 JW Bethel Tours. All rights reserved.</p>
+      <a href="#">Admin Portal</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════ BOOKING PAGE ═══════════════════════════════ -->
+<div id="booking-page" class="page">
+  <div id="booking-page-inner" style="background:linear-gradient(180deg,#f8fbff 0%,#eef4fa 100%);min-height:calc(100vh - 114px);padding:36px 24px">
+    <div id="steps-bar" class="steps-bar">
+      <div class="step-item active" id="st0"><div class="step-dot">1</div><span>Choose Tour</span></div>
+      <div class="step-item" id="st1"><div class="step-dot">2</div><span>Pick a Date</span></div>
+      <div class="step-item" id="st2"><div class="step-dot">3</div><span>Choose Time</span></div>
+      <div class="step-item" id="st3"><div class="step-dot">4</div><span>Your Details</span></div>
+      <div class="step-item" id="st4"><div class="step-dot">5</div><span>Confirmation</span></div>
+    </div>
+    <div class="booking-wrap" id="booking-content"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ TRACKING PAGE ═══════════════════════════════ -->
+<div id="tracking-page" class="page">
+  <div id="tracking-map-wrap" style="height:calc(100vh - 180px);display:grid;grid-template-rows:1fr auto">
+    <div id="live-map" style="width:100%;height:100%;background:linear-gradient(160deg,#e8f0e9 0%,#dce8dd 40%,#d4e4d6 100%)"></div>
+    <div class="tracking-panel">
+      <div class="track-inner">
+        <div class="track-info-hdr">
+          <div>
+            <p class="track-guide-label">Your Guide</p>
+            <h3 class="track-guide-name">JW Bethel Guide</h3>
+          </div>
+          <div class="eta-badge">
+            <div class="pulse-wrap"><div class="pulse-dot"></div></div>
+            En Route · 4 min
+          </div>
+        </div>
+        <div class="track-details">
+          <div class="track-detail"><span>Status</span><strong style="color:var(--teal-500)">En Route</strong></div>
+          <div class="track-detail"><span>Guest</span><strong>Jane Smith</strong></div>
+          <div class="track-detail"><span>Party</span><strong>4 people</strong></div>
+        </div>
+        <p class="track-status-desc">Your guide is on the way to your pickup location. Watch them move in real time on the map above.</p>
+        <div class="info-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          This is a demo. In the live app, the marker moves as your guide drives toward you via real-time GPS.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ DRIVER PAGE ═══════════════════════════════ -->
+<div id="driver-page" class="page">
+  <div class="driver-body" style="padding-top:24px">
+    <div class="drv-card">
+      <p class="drv-label">TODAY'S BOOKING</p>
+      <h2 class="drv-guest">Jane Smith</h2>
+      <div class="drv-meta">
+        <span>4 guests</span>
+        <button class="drv-call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.07 9.81 19.79 19.79 0 011 1.18 2 2 0 013 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call Guest</button>
+      </div>
+    </div>
+    <div class="drv-card">
+      <p class="drv-label">TOUR STATUS</p>
+      <div class="drv-progress" id="drv-progress"></div>
+      <button class="advance-btn" id="advance-btn" onclick="advanceStatus()">Start — Head to Pickup</button>
+    </div>
+    <div class="drv-card loc-card" id="loc-card">
+      <div class="loc-hdr">
+        <div>
+          <p class="drv-label">LOCATION SHARING</p>
+          <p class="loc-status" id="loc-status"><span class="pulse-dot muted inline"></span>Not sharing</p>
+        </div>
+        <button class="start-btn" id="loc-btn" onclick="toggleSharing()">Start Sharing</button>
+      </div>
+      <p class="loc-hint" id="loc-hint">Tap "Start Sharing" to broadcast your GPS to guests. They'll see you moving on their map in real time.</p>
+      <div class="loc-detail" id="loc-detail" style="display:none">
+        <div class="loc-row"><span>Lat</span><code id="loc-lat">—</code></div>
+        <div class="loc-row"><span>Lng</span><code id="loc-lng">—</code></div>
+        <div class="loc-row"><span>Accuracy</span><code id="loc-acc">—</code></div>
+        <div class="loc-row"><span>Last sent</span><code id="loc-time">—</code></div>
+      </div>
+    </div>
+    <div class="drv-card">
+      <p class="drv-label">CUSTOMER TRACKING LINK</p>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--slate-100);font-size:.8rem;color:var(--slate-700);font-family:monospace;margin-top:2px">
+        <span style="flex:1;word-break:break-all">https://jwbethel.tours/track/a3f8b2c9d4e1</span>
+        <button style="background:none;border:none;color:var(--slate-500);cursor:pointer" onclick="alert('Link copied!')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+      </div>
+      <p class="loc-hint" style="margin-top:6px">Share this link with your guest so they can see you in real time.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── PAGE SWITCHER ─── */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(name+'-page').classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='tracking') initMap();
+  if(name==='booking')  renderBookingStep(bookingStep);
+  if(name==='driver')   renderDriverProgress();
+}
+
+/* ═══════════════════ BOOKING CALENDAR ═══════════════════ */
+let bookingStep=0;
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+let selDate=null, selTime=null, selTour=null;
+
+const TOURS=[
+  {slug:'blue-ridge',name:'Blue Ridge Mountain Tour',duration:'4 hrs',price:'$85',grad:'linear-gradient(135deg,#0a2a27,#14b8a6)'},
+  {slug:'historic-downtown',name:'Historic Downtown Walking Tour',duration:'2 hrs',price:'$45',grad:'linear-gradient(135deg,#08183e,#2459af)'},
+  {slug:'sunset-valley',name:'Sunset Valley Scenic Drive',duration:'3 hrs',price:'$65',grad:'linear-gradient(135deg,#291707,#c97d22)'},
+];
+
+function genSlots(){
+  const s=[];const today=new Date();
+  for(let d=1;d<=60;d++){
+    const dt=new Date(today);dt.setDate(today.getDate()+d);
+    if(dt.getDay()===0)continue;
+    const ds=dt.toISOString().split('T')[0];
+    s.push({date:ds,time:'9:00 AM',cap:12,booked:Math.floor(Math.random()*7)});
+    if(dt.getDay()!==6)s.push({date:ds,time:'2:00 PM',cap:12,booked:Math.floor(Math.random()*4)});
+  }
+  return s;
+}
+const SLOTS=genSlots();
+const availDates=new Set(SLOTS.filter(s=>s.booked<s.cap).map(s=>s.date));
+
+function fmtDate(ds){return new Date(ds+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}
+function todayStr(){return new Date().toISOString().split('T')[0]}
+
+function setStep(n){
+  bookingStep=n;
+  for(let i=0;i<5;i++){
+    const el=document.getElementById('st'+i);
+    el.classList.remove('active','done');
+    if(i===n)el.classList.add('active');
+    else if(i<n)el.classList.add('done');
+    const dot=el.querySelector('.step-dot');
+    dot.innerHTML=i<n?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>':(i+1);
+  }
+  renderBookingStep(n);
+}
+
+function renderBookingStep(n){
+  const c=document.getElementById('booking-content');
+  if(n===0){
+    c.innerHTML=`
+      <h2 class="step-title">Choose Your Tour</h2>
+      <p class="step-sub">Select the experience you'd like to book.</p>
+      <div style="display:grid;gap:14px">
+        ${TOURS.map(t=>`
+        <button style="display:flex;align-items:center;gap:0;border:1px solid var(--slate-200);border-radius:22px;background:#fff;box-shadow:var(--shadow-sm);overflow:hidden;text-align:left;transition:transform 140ms,box-shadow 140ms;padding:0;cursor:pointer" onclick="selTour='${t.slug}';setStep(1)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          <div style="width:100px;height:80px;flex-shrink:0;background:${t.grad}"></div>
+          <div style="flex:1;padding:16px 18px">
+            <div style="font-weight:700;font-size:1rem;margin-bottom:6px">${t.name}</div>
+            <div style="display:flex;gap:12px;color:var(--slate-500);font-size:.84rem"><span>${t.duration}</span><span>${t.price}/person</span></div>
+          </div>
+          <div style="padding:0 18px;color:var(--slate-300)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </button>`).join('')}
+      </div>`;
+  } else if(n===1){
+    const t=TOURS.find(t=>t.slug===selTour)||TOURS[0];
+    c.innerHTML=`
+      <div style="display:inline-flex;align-items:center;gap:12px;padding:10px 16px;border-radius:999px;background:rgba(20,184,166,.1);color:var(--teal-500);font-weight:600;font-size:.9rem">
+        ${t.name}
+        <button style="background:none;border:none;color:var(--slate-500);font-size:.82rem;text-decoration:underline;cursor:pointer" onclick="setStep(0)">Change</button>
+      </div>
+      <h2 class="step-title">Pick a Date</h2>
+      <p class="step-sub">Teal dots mark available dates. Select one to continue.</p>
+      <div class="cal-card" id="cal-card"></div>
+      <div class="cal-legend">
+        <span class="leg-item"><span class="leg-dot avail"></span>Available</span>
+        <span class="leg-item"><span class="leg-dot unavail"></span>Unavailable</span>
+        <span class="leg-item"><span class="leg-dot selected"></span>Selected</span>
+      </div>`;
+    renderCal();
+  } else if(n===2){
+    const daySlots=SLOTS.filter(s=>s.date===selDate&&s.booked<s.cap);
+    c.innerHTML=`
+      <button class="back-step" onclick="setStep(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back to Calendar</button>
+      <h2 class="step-title">Choose a Time</h2>
+      <p class="step-sub">${selDate?fmtDate(selDate):''}</p>
+      <div class="time-grid">
+        ${daySlots.map(sl=>{
+          const remaining=sl.cap-sl.booked;
+          return`<button class="time-card${selTime===sl.time?' selected':''}" onclick="selTime='${sl.time}';document.querySelectorAll('.time-card').forEach(c=>c.classList.remove('selected'));this.classList.add('selected')">
+            <span class="time-label">${sl.time}</span>
+            <span class="spots${remaining<=3?' low':''}">${remaining} spot${remaining!==1?'s':''} left</span>
+            <svg class="time-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>`;}).join('')}
+      </div>
+      <button class="submit-btn" style="margin-top:8px" onclick="if(selTime)setStep(3);else alert('Please select a time')">Continue</button>`;
+  } else if(n===3){
+    const t=TOURS.find(t=>t.slug===selTour)||TOURS[0];
+    c.innerHTML=`
+      <button class="back-step" onclick="setStep(2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back to Time Selection</button>
+      <div style="display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:16px;background:rgba(20,184,166,.08);color:var(--teal-500);font-size:.88rem;font-weight:600">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        ${t.name} · ${selDate?new Date(selDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):''} · ${selTime}
+      </div>
+      <h2 class="step-title">Your Details</h2>
+      <p class="step-sub">We'll note your confirmation and share a tracking link for tour day.</p>
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label"><span>Full Name *</span><input id="f-name" placeholder="Jane Smith" required/></label>
+          <label class="form-label"><span>Email Address *</span><input id="f-email" type="email" placeholder="jane@example.com" required/></label>
+        </div>
+        <div class="form-row">
+          <label class="form-label"><span>Phone (optional)</span><input id="f-phone" type="tel" placeholder="(555) 000-0000"/></label>
+          <label class="form-label"><span>Party Size</span>
+            <select id="f-size">${[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<option${n===2?' selected':''}>${n} ${n===1?'person':'people'}</option>`).join('')}</select>
+          </label>
+        </div>
+        <label class="form-label"><span>Special Requests (optional)</span><textarea id="f-special" placeholder="Accessibility needs, dietary restrictions, questions…" rows="3"></textarea></label>
+        <button class="submit-btn" onclick="submitBooking()">Confirm Booking</button>
+      </div>`;
+  } else if(n===4){
+    const t=TOURS.find(t=>t.slug===selTour)||TOURS[0];
+    const token=Math.random().toString(36).slice(2,14);
+    const ref=(Math.random().toString(36).slice(2,10)).toUpperCase();
+    c.innerHTML=`
+      <div class="confirm-panel">
+        <div class="confirm-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h2 class="step-title">You're Booked!</h2>
+        <p class="step-sub">Confirmation recorded. Check your email for details.</p>
+        <div class="confirm-card" style="width:100%">
+          <div class="confirm-row"><span>Tour</span><strong>${t.name}</strong></div>
+          <div class="confirm-row"><span>Date</span><strong>${selDate?fmtDate(selDate):''}</strong></div>
+          <div class="confirm-row"><span>Time</span><strong>${selTime}</strong></div>
+          <div class="confirm-row"><span>Party Size</span><strong>2 people</strong></div>
+          <div class="confirm-row"><span>Booking Ref</span><strong class="booking-ref">${ref}</strong></div>
+        </div>
+        <div class="track-link-card" style="width:100%">
+          <div class="track-link-hdr"><div class="pulse-wrap"><div class="pulse-dot"></div></div><strong>Your Live Tracking Link</strong></div>
+          <p>On tour day, open this link to see your guide's real-time location — like Uber for your adventure.</p>
+          <div class="track-url">https://jwbethel.tours/track/${token}</div>
+          <div class="track-actions">
+            <button class="btn-outline" onclick="navigator.clipboard?.writeText('https://jwbethel.tours/track/${token}').then(()=>this.textContent='Copied!')">Copy Link</button>
+            <button class="btn-solid" onclick="showPage('tracking')">Open Tracker Demo</button>
+          </div>
+        </div>
+        <a href="#" onclick="setStep(0);return false" style="color:var(--slate-500);font-size:.9rem;margin-top:8px">← Book another tour</a>
+      </div>`;
+  }
+}
+
+function renderCal(){
+  const first=new Date(calYear,calMonth,1).getDay();
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  const today=todayStr();
+  let h=`<div class="cal-hdr">
+    <button class="cal-btn" onclick="calPrev()" ${calYear===new Date().getFullYear()&&calMonth===new Date().getMonth()?'disabled':''}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="cal-month">${MONTHS[calMonth]} ${calYear}</span>
+    <button class="cal-btn" onclick="calNext()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+  </div>
+  <div class="cal-grid">
+    ${DOW.map(d=>`<div class="cal-dow">${d}</div>`).join('')}
+    ${Array(first).fill('<div></div>').join('')}`;
+  for(let d=1;d<=days;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const past=ds<today;
+    const avail=!past&&availDates.has(ds);
+    const sel=ds===selDate;
+    const isTod=ds===today;
+    h+=`<button class="cal-day ${avail?'avail':'unavail'} ${sel?'selected':''} ${isTod?'today':''} ${past?'past':''}" onclick="${avail?`pickDate('${ds}')`:''}">
+      ${d}${avail&&!sel?'<span class="avail-dot"></span>':''}
+    </button>`;
+  }
+  h+='</div>';
+  document.getElementById('cal-card').innerHTML=h;
+}
+
+function pickDate(ds){selDate=ds;setStep(2)}
+function calPrev(){if(calMonth===0){calYear--;calMonth=11;}else calMonth--;selDate=null;renderCal()}
+function calNext(){if(calMonth===11){calYear++;calMonth=0;}else calMonth++;selDate=null;renderCal()}
+
+function submitBooking(){
+  const name=document.getElementById('f-name').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  if(!name||!email){alert('Name and email are required.');return}
+  setStep(4);
+}
+
+/* ═══════════════════ LEAFLET MAP ═══════════════════ */
+let mapInit=false;
+function initMap(){
+  if(mapInit||!window.L)return;
+  mapInit=true;
+  const map=L.map('live-map',{center:[35.5095,-82.5371],zoom:14});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap contributors',maxZoom:19
+  }).addTo(map);
+
+  const meetingIcon=L.divIcon({
+    html:`<div style="width:36px;height:36px;background:var(--navy-900);border:3px solid #fff;border-radius:50%;display:grid;place-items:center;box-shadow:0 4px 12px rgba(7,19,50,.35)"><svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;color:#fff"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>`,
+    className:'',iconSize:[36,36],iconAnchor:[18,36]
+  });
+  L.marker([35.5095,-82.5371],{icon:meetingIcon}).addTo(map).bindPopup('Meeting Point');
+
+  // Animate driver marker along a path
+  const driverIcon=L.divIcon({
+    html:`<div style="position:relative;width:44px;height:44px;background:var(--teal-500);border:3px solid #fff;border-radius:50%;display:grid;place-items:center;box-shadow:0 4px 12px rgba(20,184,166,.5)"><svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;color:#fff"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>`,
+    className:'',iconSize:[44,44],iconAnchor:[22,22]
+  });
+
+  // Simulate driver moving toward meeting point
+  const driverStart=[35.516,-82.548];
+  const driverEnd=[35.5095,-82.5371];
+  const marker=L.marker(driverStart,{icon:driverIcon}).addTo(map).bindPopup('Your Guide');
+  map.fitBounds([driverStart,driverEnd],{padding:[50,50]});
+  let t=0;
+  setInterval(()=>{
+    t=(t+0.005)%1;
+    const lat=driverStart[0]+(driverEnd[0]-driverStart[0])*t;
+    const lng=driverStart[1]+(driverEnd[1]-driverStart[1])*t;
+    marker.setLatLng([lat,lng]);
+    if(t>0.95)t=0;
+  },300);
+}
+
+/* ═══════════════════ DRIVER APP ═══════════════════ */
+const STATUSES=[
+  {key:'confirmed',label:'Not Started',next:'en_route',nextLabel:'Start — Head to Pickup'},
+  {key:'en_route',label:'En Route',next:'arrived',nextLabel:'Mark Arrived'},
+  {key:'arrived',label:'Arrived',next:'active',nextLabel:'Start Tour'},
+  {key:'active',label:'Tour Active',next:'complete',nextLabel:'Complete Tour'},
+  {key:'complete',label:'Complete',next:null,nextLabel:null},
+];
+let drvStatusIdx=0;
+let sharing=false;
+let watchId=null;
+
+function renderDriverProgress(){
+  const prog=document.getElementById('drv-progress');
+  if(!prog)return;
+  prog.innerHTML=STATUSES.slice(0,-1).map((s,i)=>`
+    <div class="drv-step ${i<drvStatusIdx?'done':''} ${i===drvStatusIdx?'current':''}">
+      <div class="drv-step-dot">${i<drvStatusIdx?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':(i+1)}</div>
+      <span>${s.label}</span>
+    </div>`).join('');
+  const btn=document.getElementById('advance-btn');
+  const cur=STATUSES[drvStatusIdx];
+  if(cur.next){btn.textContent=cur.nextLabel;btn.style.display='';}
+  else{btn.style.display='none';btn.insertAdjacentHTML('afterend',`<div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:14px;background:rgba(47,191,133,.1);color:var(--success);font-weight:700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:20px;height:20px"><polyline points="20 6 9 17 4 12"/></svg>Tour Complete</div>`);}
+}
+
+function advanceStatus(){
+  if(drvStatusIdx<STATUSES.length-1){drvStatusIdx++;renderDriverProgress();}
+}
+
+function toggleSharing(){
+  if(sharing){stopSharing();}else{startSharing();}
+}
+
+function startSharing(){
+  if(!navigator.geolocation){
+    alert('Geolocation not supported in this browser.');return;
+  }
+  sharing=true;
+  document.getElementById('loc-btn').textContent='Stop';
+  document.getElementById('loc-btn').className='stop-btn';
+  document.getElementById('loc-card').classList.add('sharing');
+  document.getElementById('loc-detail').style.display='grid';
+  document.getElementById('loc-hint').style.display='none';
+  document.getElementById('loc-status').innerHTML='<span class="pulse-dot inline"></span>Live — Guests can track you';
+  watchId=navigator.geolocation.watchPosition(pos=>{
+    document.getElementById('loc-lat').textContent=pos.coords.latitude.toFixed(5);
+    document.getElementById('loc-lng').textContent=pos.coords.longitude.toFixed(5);
+    document.getElementById('loc-acc').textContent='±'+Math.round(pos.coords.accuracy)+'m';
+    document.getElementById('loc-time').textContent=new Date().toLocaleTimeString();
+  },err=>{
+    alert('Location error: '+err.message);stopSharing();
+  },{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+}
+
+function stopSharing(){
+  if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;}
+  sharing=false;
+  document.getElementById('loc-btn').textContent='Start Sharing';
+  document.getElementById('loc-btn').className='start-btn';
+  document.getElementById('loc-card').classList.remove('sharing');
+  document.getElementById('loc-detail').style.display='none';
+  document.getElementById('loc-hint').style.display='';
+  document.getElementById('loc-status').innerHTML='<span class="pulse-dot muted inline"></span>Not sharing';
+}
+
+/* ─── INIT ─── */
+// Start calendar on next month so all dates show availability
+if(calMonth===11){calYear++;calMonth=0;}else calMonth++;
+renderBookingStep(0);
+renderDriverProgress();
+</script>
+</body>
+</html>
