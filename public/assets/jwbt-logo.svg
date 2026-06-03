@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" fill="none">
+  <!-- Mountain peaks -->
+  <polygon points="18,58 38,22 58,58" fill="#14b8a6"/>
+  <polygon points="34,58 56,30 78,58" fill="#4fd8cc" opacity="0.85"/>
+  <!-- Company name -->
+  <text x="90" y="38" font-family="Inter,DejaVu Sans,Arial,sans-serif" font-weight="800" font-size="26" letter-spacing="-0.5" fill="#ffffff">JW BETHEL TOURS</text>
+  <!-- Tagline -->
+  <text x="92" y="56" font-family="Inter,DejaVu Sans,Arial,sans-serif" font-weight="400" font-size="11" letter-spacing="2" fill="#4fd8cc">GUIDED EXPERIENCES</text>
+</svg>

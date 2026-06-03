@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import TerritoryBackdrop from '../components/TerritoryBackdrop';
 
 const TOURS = [
   {
@@ -7,7 +6,7 @@ const TOURS = [
     name: 'Blue Ridge Mountain Tour',
     tagline: 'Wind through scenic overlooks, hidden waterfalls, and charming mountain communities.',
     duration: '4 hrs',
-    groupSize: 'Up to 12',
+    groupSize: 'Up to 15',
     price: '$85',
     gradient: 'linear-gradient(135deg, #0a2a27 0%, #14b8a6 100%)',
     highlights: ['Scenic mountain overlooks', 'Hidden waterfall stops', 'Local history & stories', 'Complimentary refreshments'],
@@ -17,7 +16,7 @@ const TOURS = [
     name: 'Historic Downtown Walking Tour',
     tagline: 'Discover centuries of architecture, local legends, and the gems that make this town special.',
     duration: '2 hrs',
-    groupSize: 'Up to 20',
+    groupSize: 'Up to 15',
     price: '$45',
     gradient: 'linear-gradient(135deg, #08183e 0%, #2459af 100%)',
     highlights: ['Historic architecture', 'Local legends & stories', 'Hidden courtyards', 'Photo opportunities'],
@@ -27,7 +26,7 @@ const TOURS = [
     name: 'Sunset Valley Scenic Drive',
     tagline: 'Chase the golden hour through Valley Road as the sun dips below the ridgeline.',
     duration: '3 hrs',
-    groupSize: 'Up to 8',
+    groupSize: 'Up to 15',
     price: '$65',
     gradient: 'linear-gradient(135deg, #291707 0%, #c97d22 100%)',
     highlights: ['Golden hour photography', 'Wildlife spotting', 'Valley overlooks', 'Small group experience'],
@@ -40,8 +39,7 @@ export default function LandingPage() {
       <header className="landing-header">
         <div className="landing-header-inner">
           <div className="landing-header-logo">
-            <img src="/assets/logo.png" alt="JW Bethel Tours" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-            <span>JW Bethel Tours</span>
+            <img src="/assets/jwbt-logo.svg" alt="JW Bethel Tours" style={{ height: '38px', width: 'auto' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           </div>
           <nav className="landing-nav">
             <Link to="/tours">Tours</Link>
@@ -51,30 +49,36 @@ export default function LandingPage() {
       </header>
 
       <section className="landing-hero">
-        <TerritoryBackdrop />
+        {/* Mountain SVG backdrop */}
+        <svg className="landing-hero-mountains" viewBox="0 0 1440 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="0,500 0,320 120,200 260,280 400,160 540,250 680,120 820,220 960,100 1100,210 1240,160 1440,200 1440,500" fill="rgba(10,24,58,0.7)"/>
+          <polygon points="0,500 0,380 100,300 220,360 360,260 480,340 620,240 760,320 900,200 1040,310 1200,260 1440,310 1440,500" fill="rgba(7,18,46,0.85)"/>
+        </svg>
         <div className="landing-hero-glow" />
-        <div className="landing-hero-content">
-          <div className="landing-hero-logo">
-            <img src="/assets/logo.png" alt="JW Bethel Tours" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+        <div className="landing-hero-inner">
+          <div className="landing-hero-left">
+            <p className="landing-eyebrow">GUIDED TOURS · JW BETHEL</p>
+            <h1 className="landing-headline">
+              Discover the Stories<br />
+              <span className="landing-headline-accent">Hidden in Plain Sight</span>
+            </h1>
+            <p className="landing-hero-desc">
+              Mountain landscapes, historic streets, and sunset valleys — guided by locals who know every story worth telling. Up to 15 passengers.
+            </p>
+            <div className="landing-hero-cta">
+              <Link to="/book" className="cta-primary">Reserve Your Spot</Link>
+              <Link to="/track/demo" className="cta-ghost">See Live Tracking</Link>
+            </div>
+            <div className="landing-hero-stats">
+              <div className="hero-stat"><strong>3</strong><span>Unique Tours</span></div>
+              <div className="hero-stat-divider" />
+              <div className="hero-stat"><strong>15</strong><span>Passengers</span></div>
+              <div className="hero-stat-divider" />
+              <div className="hero-stat"><strong>Live</strong><span>GPS Tracking</span></div>
+            </div>
           </div>
-          <p className="landing-eyebrow">GUIDED TOURS · JW BETHEL</p>
-          <h1 className="landing-headline">
-            Discover the Stories<br />
-            <span className="landing-headline-accent">Hidden in Plain Sight</span>
-          </h1>
-          <p className="landing-hero-desc">
-            Mountain landscapes, historic streets, and sunset valleys — guided by locals who know every story worth telling.
-          </p>
-          <div className="landing-hero-cta">
-            <Link to="/book" className="cta-primary">Reserve Your Spot</Link>
-            <Link to="/tours" className="cta-ghost">Explore Tours</Link>
-          </div>
-          <div className="landing-hero-stats">
-            <div className="hero-stat"><strong>3</strong><span>Unique Tours</span></div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat"><strong>5★</strong><span>Guest Rating</span></div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat"><strong>Live</strong><span>Guide Tracking</span></div>
+          <div className="landing-hero-right">
+            <img src="/assets/van.jpg" alt="JW Bethel Tours 15-passenger van" className="landing-hero-van" />
           </div>
         </div>
       </section>
@@ -170,10 +174,8 @@ export default function LandingPage() {
       <footer className="landing-footer">
         <div className="landing-section landing-footer-inner">
           <div className="footer-brand">
-            <div className="footer-logo">
-              <img src="/assets/logo.png" alt="JW Bethel Tours" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-            </div>
-            <p>Guided tours that reveal the real story of this land.</p>
+            <img src="/assets/jwbt-logo.svg" alt="JW Bethel Tours" style={{ height: '48px', width: 'auto' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            <p>Guided tours that reveal the real story of this land — up to 15 passengers, GPS tracked every mile.</p>
           </div>
           <div className="footer-links-col">
             <h5>Explore</h5>

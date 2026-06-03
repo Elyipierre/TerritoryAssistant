@@ -44,24 +44,28 @@ img{max-width:100%;display:block}
 .page{display:none}.page.active{display:block}
 
 /* ─── HERO ─── */
-.hero{position:relative;min-height:92vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#06112b 0%,#071332 100%);overflow:hidden}
-.hero-glow{position:absolute;inset:auto auto 15% 50%;width:600px;height:600px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(20,184,166,.16),transparent 65%);filter:blur(80px);pointer-events:none}
-.hero-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:80px 24px;max-width:780px;gap:24px;color:#fff}
-.hero-logo{width:min(260px,50vw);filter:drop-shadow(0 24px 48px rgba(0,0,0,.4))}
-.eyebrow{color:var(--teal-400);font-size:.78rem;letter-spacing:.22em;font-weight:700}
-.hero h1{font-size:clamp(2.4rem,5.5vw,4rem);font-weight:800;letter-spacing:-.05em;line-height:1.1}
+.hero{position:relative;min-height:88vh;display:flex;align-items:stretch;background:linear-gradient(160deg,#04101f 0%,#06142b 55%,#071c35 100%);overflow:hidden}
+.hero-mountains{position:absolute;inset:0;pointer-events:none}
+.hero-glow{position:absolute;bottom:-80px;right:10%;width:700px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(20,184,166,.13),transparent 65%);filter:blur(90px);pointer-events:none}
+.hero-inner{position:relative;z-index:2;max-width:1200px;width:100%;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:0}
+.hero-left{display:flex;flex-direction:column;gap:28px;color:#fff;padding:80px 0}
+.eyebrow{color:var(--teal-400);font-size:.76rem;letter-spacing:.26em;font-weight:700}
+.hero h1{font-size:clamp(2.6rem,4.8vw,4rem);font-weight:800;letter-spacing:-.05em;line-height:1.08}
 .hero h1 span{color:var(--teal-400)}
-.hero-desc{font-size:1.1rem;color:rgba(220,234,255,.82);line-height:1.7;max-width:560px}
-.cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.hero-desc{font-size:1.05rem;color:rgba(210,228,255,.78);line-height:1.72;max-width:480px}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap}
 .cta-primary{padding:16px 32px;border-radius:999px;background:var(--teal-500);color:#fff;font-weight:700;font-size:1rem;box-shadow:0 12px 28px rgba(20,184,166,.3);transition:transform 140ms,opacity 140ms;border:none}
 .cta-primary:hover{transform:translateY(-2px);opacity:.9}
 .cta-ghost{padding:16px 32px;border-radius:999px;border:1px solid rgba(255,255,255,.2);color:#fff;font-weight:600;background:rgba(255,255,255,.06);transition:background 140ms;cursor:pointer}
 .cta-ghost:hover{background:rgba(255,255,255,.1)}
 .hero-stats{display:flex;align-items:center;gap:24px}
-.stat{display:grid;gap:2px;text-align:center}
-.stat strong{font-size:1.5rem;font-weight:800}
-.stat span{font-size:.8rem;color:rgba(200,215,240,.7);letter-spacing:.08em}
-.stat-div{width:1px;height:40px;background:rgba(255,255,255,.14)}
+.stat{display:grid;gap:2px}
+.stat strong{font-size:1.4rem;font-weight:800}
+.stat span{font-size:.76rem;color:rgba(190,210,240,.65);letter-spacing:.1em;text-transform:uppercase}
+.stat-div{width:1px;height:36px;background:rgba(255,255,255,.14)}
+.hero-right{position:relative;display:flex;align-items:flex-end;justify-content:flex-end;padding-bottom:0}
+.hero-van{width:100%;max-width:640px;mix-blend-mode:multiply;filter:brightness(1.08) contrast(1.04);display:block;margin-bottom:-4px}
+@media(max-width:860px){.hero-inner{grid-template-columns:1fr}.hero-right{display:none}}
 
 /* ─── TOURS SECTION ─── */
 .section{padding:90px 0;background:#fff}
@@ -273,8 +277,7 @@ img{max-width:100%;display:block}
 <nav class="nav">
   <div class="nav-inner">
     <div class="nav-logo">
-      <img src="/assets/logo.png" alt="JW Bethel Tours" onerror="this.style.display='none'"/>
-      <span>JW Bethel Tours</span>
+      <img src="/assets/jwbt-logo.svg" alt="JW Bethel Tours" style="width:auto;height:38px;" onerror="this.style.display='none'"/>
     </div>
     <div class="nav-links">
       <a href="#" onclick="showPage('landing')">Home</a>
@@ -296,22 +299,31 @@ img{max-width:100%;display:block}
 <div id="landing-page" class="page active">
 
   <section class="hero">
+    <!-- Mountain silhouette SVG -->
+    <svg class="hero-mountains" viewBox="0 0 1440 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="0,500 0,320 120,200 260,280 400,160 540,250 680,120 820,220 960,100 1100,210 1240,160 1440,200 1440,500" fill="rgba(10,24,58,0.7)"/>
+      <polygon points="0,500 0,380 100,300 220,360 360,260 480,340 620,240 760,320 900,200 1040,310 1200,260 1440,310 1440,500" fill="rgba(7,18,46,0.85)"/>
+    </svg>
     <div class="hero-glow"></div>
-    <div class="hero-content">
-      <img src="/assets/logo.png" alt="JW Bethel Tours" class="hero-logo" onerror="this.style.display='none'"/>
-      <p class="eyebrow">GUIDED TOURS · JW BETHEL</p>
-      <h1>Discover the Stories<br/><span>Hidden in Plain Sight</span></h1>
-      <p class="hero-desc">Mountain landscapes, historic streets, and sunset valleys — guided by locals who know every story worth telling.</p>
-      <div class="cta-row">
-        <button class="cta-primary" onclick="showPage('booking')">Reserve Your Spot</button>
-        <button class="cta-ghost">Explore Tours</button>
+    <div class="hero-inner">
+      <div class="hero-left">
+        <p class="eyebrow">GUIDED TOURS · JW BETHEL</p>
+        <h1>Discover the Stories<br/><span>Hidden in Plain Sight</span></h1>
+        <p class="hero-desc">Mountain landscapes, historic streets, and golden-hour valleys — guided by locals who know every story worth telling. Up to 15 passengers.</p>
+        <div class="cta-row">
+          <button class="cta-primary" onclick="showPage('booking')">Reserve Your Spot</button>
+          <button class="cta-ghost" onclick="showPage('tracking')">See Live Tracking</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><strong>3</strong><span>Unique Tours</span></div>
+          <div class="stat-div"></div>
+          <div class="stat"><strong>15</strong><span>Passengers</span></div>
+          <div class="stat-div"></div>
+          <div class="stat"><strong>Live</strong><span>GPS Tracking</span></div>
+        </div>
       </div>
-      <div class="hero-stats">
-        <div class="stat"><strong>3</strong><span>Unique Tours</span></div>
-        <div class="stat-div"></div>
-        <div class="stat"><strong>5★</strong><span>Guest Rating</span></div>
-        <div class="stat-div"></div>
-        <div class="stat"><strong>Live</strong><span>Guide Tracking</span></div>
+      <div class="hero-right">
+        <img src="/assets/van.jpg" alt="JW Bethel Tours van" class="hero-van"/>
       </div>
     </div>
   </section>
@@ -426,8 +438,8 @@ img{max-width:100%;display:block}
     <div class="wrap">
       <div class="footer-grid">
         <div class="footer-brand">
-          <img src="/assets/logo.png" class="footer-logo-img" alt="JW Bethel Tours" onerror="this.style.display='none'"/>
-          <p>Guided tours that reveal the real story of this land.</p>
+          <img src="/assets/jwbt-logo.svg" style="height:48px;width:auto" alt="JW Bethel Tours" onerror="this.style.display='none'"/>
+          <p>Guided tours that reveal the real story of this land — up to 15 passengers, GPS tracked every mile.</p>
         </div>
         <div class="footer-col">
           <h5>Explore</h5>
